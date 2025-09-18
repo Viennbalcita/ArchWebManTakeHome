@@ -19,6 +19,10 @@ app.use(bodyParser.json());
 
 app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}`));
 
+mongoose.connect('mongodb://localhost:27017/ArchBackendChallenge')
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((error) => console.error('Error connecting to MongoDB:', error));
+
 // app.use('/api/videos', create);
 // app.use('/api/videos', deletevideo);
 // app.use('/api/videos', get);
