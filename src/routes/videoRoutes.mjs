@@ -26,4 +26,23 @@ router.post('/create',async (req, res) => {
     }
 });
 
+router.put('/update/:id', async (req, res) => {
+
+    try {
+        const videoid = req.params.id;
+        const { title, date, description, link, channel, series } = req.body;
+        const updatedVideo = await video.findByIdAndUpdate(videoid,{title,date, description, link, channel, series}, {new: true, runValidators: true});
+
+        if(!updatedVideo) {
+            return res.status(404).json({ error: 'Video not found' });
+        }
+
+        else {
+            res.status(200).json({ message: 'Video updated successfully', video: updatedVideo });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 export default router;
