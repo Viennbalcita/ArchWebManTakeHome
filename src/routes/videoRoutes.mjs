@@ -45,4 +45,21 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const videoid = req.params.id;
+        const deletedVideo = await video.findByIdAndDelete(videoid);
+
+        if (!deletedVideo) {
+            return res.status(404).json({ error: 'Video not found' });
+        }
+
+        res.status(200).json({ message: 'Video deleted successfully', video: deletedVideo });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+    });
+
+
+
 export default router;
