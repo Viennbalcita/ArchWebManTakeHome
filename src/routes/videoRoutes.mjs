@@ -87,6 +87,13 @@ router.get('/select-all/:series', async (req, res) => {
     }
 });
 
-
-
+router.get('/get-latest/:channel', async (req, res) => {
+    try {
+        const foundVideos = await video.find({channel: req.params.channel});
+        res.status(200).json({ foundVideos });
+    } 
+    catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 export default router;
