@@ -55,10 +55,37 @@ router.delete('/delete/:id', async (req, res) => {
         }
 
         res.status(200).json({ message: 'Video deleted successfully', video: deletedVideo });
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
     });
+
+router.get('/get/:id', async (req, res) => {
+    try {
+        const videoid = req.params.id;
+        const foundVideo = await video.findById(videoid);
+
+        if (!foundVideo) {
+            return res.status(404).json({ error: 'Video not found' });
+        }
+
+        res.status(200).json({ video: foundVideo });
+    } 
+    catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.get('/getAll/:series', async (req, res) => {
+    try {
+        const foundVideos = await video.find({series: req.params.series});
+        res.status(200).json({ foundVideos });
+    } 
+    catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});\
 
 
 
