@@ -77,7 +77,7 @@ router.get('/get/:id', async (req, res) => {
     }
 });
 
-router.get('/getAll/:series', async (req, res) => {
+router.get('/select-all/:series', async (req, res) => {
     try {
         const foundVideos = await video.find({series: req.params.series});
         res.status(200).json({ foundVideos });
@@ -85,7 +85,7 @@ router.get('/getAll/:series', async (req, res) => {
     catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
-});\
+});
 
 
 
