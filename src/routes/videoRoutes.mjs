@@ -1,20 +1,20 @@
 import express from 'express';
-import video from '../models/video.mjs';
-
+import videoModel from '../models/video.mjs';
+import seriesModel from '../models/series.mjs';
+import channelModel from '../models/channel.mjs';
 
 const router = express.Router();
 
-router.post('/create',async (req, res) => {
+router.post('/create', async (req, res) => {
     try {
-        const { title, date, description, link, channel, series } = req.body;
-
-        const newVideo = new video({
+        const { title, date, description, link, series } = req.body;
+        const foundSeries = await seriesModel.findOne({name: series});
+        const newVideo = new videoModel({
             title,
             date,
             description,
             link,
-            channel,
-            series
+            series: foundSeries._id
         });
 
         await newVideo.save()
@@ -30,8 +30,10 @@ router.put('/update/:id', async (req, res) => {
 
     try {
         const videoid = req.params.id;
-        const { title, date, description, link, channel, series } = req.body;
-        const updatedVideo = await video.findByIdAndUpdate(videoid,{title,date, description, link, channel, series}, {new: true, runValidators: true});
+        const { title, date, description, link, series } = req.body;
+        const seriesId = await seriesModel.findOne({name: series});
+
+        const updatedVideo = await videoModel.findByIdAndUpdate(videoid,{title,date, description, link, series: seriesId._id}, {new: true, runValidators: true});
 
         if(!updatedVideo) {
             return res.status(404).json({ error: 'Video not found' });
@@ -48,7 +50,7 @@ router.put('/update/:id', async (req, res) => {
 router.delete('/delete/:id', async (req, res) => {
     try {
         const videoid = req.params.id;
-        const deletedVideo = await video.findByIdAndDelete(videoid);
+        const deletedVideo = await videoModel.findByIdAndDelete(videoid);
 
         if (!deletedVideo) {
             return res.status(404).json({ error: 'Video not found' });
@@ -64,7 +66,7 @@ router.delete('/delete/:id', async (req, res) => {
 router.get('/get/:id', async (req, res) => {
     try {
         const videoid = req.params.id;
-        const foundVideo = await video.findById(videoid);
+        const foundVideo = await videoModel.findById(videoid);
 
         if (!foundVideo) {
             return res.status(404).json({ error: 'Video not found' });
@@ -76,21 +78,30 @@ router.get('/get/:id', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
-
-router.get('/select-all/:series', async (req, res) => {
+router.get('/select-all/:seriesName', async (req, res) => {
     try {
-        const foundVideos = await video.find({series: req.params.series});
+        const selectSeriesName = await seriesModel.findOne({ name: req.params.seriesName });
+        const foundVideos = await videoModel.find({ series: selectSeriesName._id });
         res.status(200).json({ foundVideos });
     } 
     catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
-
 router.get('/get-latest/:channel', async (req, res) => {
     try {
-        const foundVideos = await video.find({channel: req.params.channel});
-        res.status(200).json({ foundVideos });
+        const channelDoc = await channelModel.findOne({ name: req.params.channel });
+
+        //Get all seriesId under the requested channel
+        const channelSeriesIds = await seriesModel.find({ channelId: channelDoc._id }).select('_id');
+
+        //Get the ids of the series
+        const seriesIds = channelSeriesIds.map(doc => doc._id);
+
+        //Find the latest video among the series under the requested channel
+        const latestVideo = await videoModel.findOne({ series: { $in: seriesIds } }).sort({ date: -1 });
+
+        res.status(200).json({ latestVideo });
     } 
     catch (error) {
         res.status(500).json({ error: 'Server error' });
