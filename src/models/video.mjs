@@ -6,8 +6,7 @@ const videoSchema = new mongoose.Schema({
     date: { type: Date, required: true},
     description: { type: String, required: true },
     link: { type: String, required: true },
-    channel: { type: String, required: true },
-    series: { type: String, required: false} 
+    series: { type: mongoose.Schema.Types.ObjectId, ref: 'Series',required: false} 
 });
 
 const video = mongoose.model('Video', videoSchema);
