@@ -83,6 +83,10 @@ router.get('/select-all/:seriesName', async (req, res) => {
         const selectSeriesName = await seriesModel.findOne({ name: req.params.seriesName });
         const foundVideos = await videoModel.find({ series: selectSeriesName._id });
         res.status(200).json({ foundVideos });
+
+        if(!foundVideos) {
+            return res.status(404).json({ error: 'No videos found for this series' });
+        }
     } 
     catch (error) {
         res.status(500).json({ error: 'Server error' });
@@ -100,6 +104,10 @@ router.get('/get-latest/:channel', async (req, res) => {
 
         //Find the latest video among the series under the requested channel
         const latestVideo = await videoModel.findOne({ series: { $in: seriesIds } }).sort({ date: -1 });
+
+        if (!latestVideo) {
+            return res.status(404).json({ error: 'No videos found for this channel' });
+        }
 
         res.status(200).json({ latestVideo });
     } 
