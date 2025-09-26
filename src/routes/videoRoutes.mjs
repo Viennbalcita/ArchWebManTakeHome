@@ -5,8 +5,10 @@ import channelModel from '../models/channel.mjs';
 
 const router = express.Router();
 
+//Creating a new video
 router.post('/create', async (req, res) => {
     try {
+        // Note that the series is being sent as a name, not an objectId
         const { title, date, description, link, series } = req.body;
         const foundSeries = await seriesModel.findOne({name: series});
         const newVideo = new videoModel({
@@ -26,10 +28,12 @@ router.post('/create', async (req, res) => {
     }
 });
 
+//Updating an existing video with its object id
 router.put('/update/:id', async (req, res) => {
 
     try {
         const videoid = req.params.id;
+        // Note that the series is being sent as a name, not an objectId
         const { title, date, description, link, series } = req.body;
         const seriesId = await seriesModel.findOne({name: series});
 
@@ -47,6 +51,7 @@ router.put('/update/:id', async (req, res) => {
     }
 });
 
+//Deleting a video with its object id
 router.delete('/delete/:id', async (req, res) => {
     try {
         const videoid = req.params.id;
@@ -63,6 +68,7 @@ router.delete('/delete/:id', async (req, res) => {
     }
     });
 
+//Getting a video's details by its object id
 router.get('/get/:id', async (req, res) => {
     try {
         const videoid = req.params.id;
@@ -78,9 +84,12 @@ router.get('/get/:id', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+//Getting all videos under a specific series by the series name
 router.get('/select-all/:seriesName', async (req, res) => {
     try {
         const selectSeriesName = await seriesModel.findOne({ name: req.params.seriesName });
+        // Note that the series field in the video model is an objectId referencing the series collection
         const foundVideos = await videoModel.find({ series: selectSeriesName._id });
         res.status(200).json({ foundVideos });
 
@@ -92,8 +101,11 @@ router.get('/select-all/:seriesName', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+//Getting the latest video under a specific channel by the channel name
 router.get('/get-latest/:channel', async (req, res) => {
     try {
+        //Get the channel document based on the requested channel name
         const channelDoc = await channelModel.findOne({ name: req.params.channel });
 
         //Get all seriesId under the requested channel

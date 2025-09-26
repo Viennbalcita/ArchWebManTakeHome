@@ -16,7 +16,9 @@ app.use(bodyParser.json());
 
 app.listen(PORT, () => console.log(`Server running on port: http://localhost:${PORT}`));
 
-mongoose.connect('mongodb://localhost:27017/ArchBackendChallenge')
+//TODO: Replace with your MongoDB database URI
+const mongoDBConnectionString = 'mongodb://localhost:27017/ArchBackendChallenge';
+mongoose.connect(mongoDBConnectionString)
     .then( async () => {
         console.log('Connected to MongoDB')
         // Ensures the channel and series collections exist in the database if not it creates them
